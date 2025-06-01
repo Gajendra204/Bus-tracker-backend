@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IBus } from '../interfaces/Ibus';
+import { IBus } from '../interfaces/IBus';
 
 
 const busSchema = new Schema<IBus>({

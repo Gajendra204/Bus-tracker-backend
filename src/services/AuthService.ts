@@ -4,7 +4,7 @@ import { User } from '../models/User';
 import { IUser, UserRole } from '../interfaces/IUser';
 
 export class AuthService {
-  private static JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+  private static JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
 
   public async findUserByEmail(email: string): Promise<IUser | null> {
     return User.findOne({ email });

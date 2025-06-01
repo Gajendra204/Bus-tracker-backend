@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IRoute } from '../interfaces/Iroute';
+import { IRoute } from '../interfaces/IRoute';
 
 
 const routeSchema = new Schema<IRoute>({
