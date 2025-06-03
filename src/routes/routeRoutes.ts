@@ -12,7 +12,7 @@ export class RouteRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/', requireRole(UserRole.ADMIN), RouteController.createRoute);
+    this.router.post('/createRoute', requireRole(UserRole.ADMIN), RouteController.createRoute);
     this.router.patch('/:routeId/assign/:busId/:driverId', requireRole(UserRole.ADMIN), RouteController.assignBusAndDriver);
   }
 

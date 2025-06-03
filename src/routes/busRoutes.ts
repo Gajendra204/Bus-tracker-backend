@@ -12,8 +12,7 @@ export class BusRoutes {
   }
 
   private initializeRoutes(): void {
-    // Only admins can manage buses
-    this.router.post('/', requireRole(UserRole.ADMIN), BusController.createBus);
+    this.router.post('/create-bus', requireRole(UserRole.ADMIN), BusController.createBus);
     this.router.get('/', requireRole(UserRole.ADMIN), BusController.getAllBuses);
     this.router.patch('/:busId/assign-driver/:driverId', requireRole(UserRole.ADMIN), BusController.assignDriverToBus);
   }
