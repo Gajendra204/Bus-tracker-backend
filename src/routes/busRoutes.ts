@@ -14,7 +14,7 @@ export class BusRoutes {
   private initializeRoutes(): void {
     this.router.post('/create-bus', requireRole(UserRole.ADMIN), BusController.createBus);
     this.router.get('/', requireRole(UserRole.ADMIN), BusController.getAllBuses);
-    this.router.patch('/:busId/assign-driver/:driverId', requireRole(UserRole.ADMIN), BusController.assignDriverToBus);
+    this.router.patch('/assign-driver', requireRole(UserRole.ADMIN), BusController.assignDriverToBus);
   }
 
   public getRouter(): Router {

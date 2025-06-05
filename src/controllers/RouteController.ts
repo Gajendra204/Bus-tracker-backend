@@ -17,7 +17,7 @@ export class RouteController {
   // Assign bus & driver to route
   public static async assignBusAndDriver(req: Request, res: Response) {
     try {
-      const { routeId, busId, driverId } = req.params;
+      const { routeId, busId, driverId } = req.body;
       const route = await Route.findByIdAndUpdate(
         routeId,
         { assignedBus: busId, assignedDriver: driverId },

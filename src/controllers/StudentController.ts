@@ -17,7 +17,7 @@ export class StudentController {
   // Assign student to bus & driver
   public static async assignToBusAndDriver(req: Request, res: Response) {
     try {
-      const { studentId, busId, driverId } = req.params;
+      const { studentId, busId, driverId } = req.body;
       const student = await Student.findByIdAndUpdate(
         studentId,
         { assignedBus: busId, assignedDriver: driverId },

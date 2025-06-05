@@ -27,7 +27,7 @@ export class BusController {
   // Assign driver to bus
   public static async assignDriverToBus(req: Request, res: Response) {
     try {
-      const { busId, driverId } = req.params;
+      const { busId, driverId } = req.body;
       const bus = await Bus.findByIdAndUpdate(
         busId,
         { assignedDriver: driverId },

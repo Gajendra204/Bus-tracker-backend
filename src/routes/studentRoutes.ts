@@ -13,7 +13,7 @@ export class StudentRoutes {
 
   private initializeRoutes(): void {
     this.router.post('/addStudent', requireRole(UserRole.ADMIN), StudentController.addStudent);
-    this.router.patch('/:studentId/assign/:busId/:driverId', requireRole(UserRole.ADMIN), StudentController.assignToBusAndDriver);
+    this.router.patch('//assign', requireRole(UserRole.ADMIN), StudentController.assignToBusAndDriver);
   }
 
   public getRouter(): Router {
