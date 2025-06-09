@@ -104,7 +104,7 @@ describe('AuthService', () => {
       expect(jwt.sign).toHaveBeenCalledWith(
         { userId: '123', role: 'PARENT' },
         'secret-key',
-        { expiresIn: '1h' }
+        { expiresIn: '7d' }
       );
       expect(token).toBe('mocktoken');
     });
