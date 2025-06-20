@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { Bus } from '../models/Bus';
 
 export class BusController {
-  // Create a new bus
   public static async createBus(req: Request, res: Response) {
     try {
       const { busNumber, capacity } = req.body;
@@ -14,7 +13,6 @@ export class BusController {
     }
   }
 
-  // Get all buses
   public static async getAllBuses(req: Request, res: Response) {
     try {
       const buses = await Bus.find().populate('assignedDriver', 'name email');
@@ -24,7 +22,6 @@ export class BusController {
     }
   }
 
-  // Assign driver to bus
   public static async assignDriverToBus(req: Request, res: Response) {
     try {
       const { busId, driverId } = req.body;

@@ -10,36 +10,49 @@ export class AuthService {
     return User.findOne({ email });
   }
 
-  public async registerUser(userData: IUser): Promise<IUser> {
-    const { email, role, password } = userData;
-    
-    if (!email || !password || !role) {
-      throw new Error('Email, password and role are required');
-    }
+  private validateUserData(userData: IUser): void {
+  const { email, password, role } = userData;
 
-    const existingUser = await this.findUserByEmail(email);
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-
-    if (role === UserRole.ADMIN) {
-      throw new Error('Cannot register admin users through this endpoint');
-    }
-
-    if (password.length < 6) {
-      throw new Error('Password must be at least 6 characters');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const user = new User({
-      ...userData,
-      password: hashedPassword
-    });
-
-    await user.save();
-    return user;
+  if (!email || !password || !role) {
+    throw new Error('Email, password and role are required');
   }
+
+  if (password.length < 6) {
+    throw new Error('Password must be at least 6 characters');
+  }
+}
+
+private preventAdminRegistration(role: UserRole): void {
+  if (role === UserRole.ADMIN) {
+    throw new Error('Cannot register admin users through this endpoint');
+  }
+}
+
+private async hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, 10);
+}
+
+private async createUser(userData: IUser): Promise<IUser> {
+  const user = new User(userData);
+  await user.save();
+  return user;
+}
+
+ public async registerUser(userData: IUser): Promise<IUser> {
+  this.validateUserData(userData);
+
+  const existingUser = await this.findUserByEmail(userData.email);
+  if (existingUser) {
+    throw new Error('User already exists');
+  }
+
+  this.preventAdminRegistration(userData.role);
+
+  const hashedPassword = await this.hashPassword(userData.password);
+  const user = await this.createUser({ ...userData, password: hashedPassword });
+
+  return user;
+}
 
   public async loginUser(email: string, password: string): Promise<string> {
     const user = await User.findOne({ email });
@@ -62,3 +75,7 @@ export class AuthService {
   }
 
 }
+
+
+
+

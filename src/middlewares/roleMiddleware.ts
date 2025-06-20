@@ -2,28 +2,47 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserRole } from '../interfaces/IUser';
 
-export const requireRole = (role: UserRole) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      res.status(401).json({ message: 'No token provided' });
-      return;
-    }
+export class AuthorizationService {
+  private jwtSecret: string;
 
+  constructor(jwtSecret: string = process.env.JWT_SECRET || 'default_secret') {
+    this.jwtSecret = jwtSecret;
+  }
+
+  private extractToken(req: Request): string | null {
+    const authHeader = req.header('Authorization');
+    return authHeader?.replace('Bearer ', '') ?? null;
+  }
+
+  private verifyToken(token: string): { role: UserRole } | null {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'process.env.JWT_SECRET') as { role: UserRole };
-      console.log('Decoded Token:', decoded); 
-      if (decoded.role !== role) {
-        console.log('Role mismatch:', decoded.role);
+      return jwt.verify(token, this.jwtSecret) as { role: UserRole };
+    } catch {
+      return null;
+    }
+  }
+
+  requireRole(requiredRole: UserRole) {
+    return (req: Request, res: Response, next: NextFunction): void => {
+      const token = this.extractToken(req);
+      
+      if (!token) {
+        res.status(401).json({ message: 'No token provided' });
+        return;
+      }
+
+      const decoded = this.verifyToken(token);
+      if (!decoded) {
+        res.status(401).json({ message: 'Invalid token' });
+        return;
+      }
+
+      if (decoded.role !== requiredRole) {
         res.status(403).json({ message: 'Access denied' });
         return;
       }
 
       next();
-    } catch (error) {
-      console.log('Token verification failed:', error);
-      res.status(401).json({ message: 'Invalid token' });
-    }
-  };
-};
+    };
+  }
+}
