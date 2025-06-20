@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-export interface IStudent extends Document {
+export interface IStudent{
   name: string;
   class?: string;
   rollNumber?: string;

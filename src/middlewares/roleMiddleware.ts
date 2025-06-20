@@ -5,7 +5,7 @@ import { UserRole } from '../interfaces/IUser';
 export class AuthorizationService {
   private jwtSecret: string;
 
-  constructor(jwtSecret: string = process.env.JWT_SECRET || 'default_secret') {
+  constructor(jwtSecret: string = process.env.JWT_SECRET || 'secret_key') {
     this.jwtSecret = jwtSecret;
   }
 

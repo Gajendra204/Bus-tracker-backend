@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-export interface IRoute extends Document {
+export interface IRoute {
   name: string;
   stops: string[];
   assignedDriver?: Schema.Types.ObjectId; 
