@@ -9,7 +9,7 @@ export class AuthController {
     this.authService = new AuthService();
   }
 
-  public registerUser = async (req: Request, res: Response): Promise<void> => {
+  public registerAdmin = async (req: Request, res: Response): Promise<void> => {
     try {
       const userData: IUser = req.body;
       
@@ -17,16 +17,17 @@ export class AuthController {
         throw new Error('Password is required');
       }
 
-      const user = await this.authService.registerUser(userData);
+      const user = await this.authService.registerAdmin(userData);
       
       res.status(201).json({
         success: true,
         data: { 
           name: user.name, 
-          email: user.email, 
+          username: user.email,
+          schoolName: user.schoolName,
           role: user.role 
         },
-        message: 'User registered successfully'
+        message: 'Admin registered successfully'
       });
     } catch (error: any) {
       res.status(400).json({
@@ -36,10 +37,10 @@ export class AuthController {
     }
   };
 
-  public login = async (req: Request, res: Response): Promise<void> => {
+  public loginAdmin = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
-      const token = await this.authService.loginUser(email, password);
+      const token = await this.authService.loginAdmin(email, password);
       
       res.status(200).json({
         success: true,

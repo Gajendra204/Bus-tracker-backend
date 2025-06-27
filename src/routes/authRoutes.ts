@@ -16,8 +16,10 @@ export class AuthRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/register', this.authService.requireRole(UserRole.ADMIN), this.authController.registerUser);
-    this.router.post('/login', this.authController.login);
+    // this.router.post('/register', this.authService.requireRole(UserRole.ADMIN), this.authController.registerUser);
+    // this.router.post('/login', this.authController.login);
+     this.router.post('/admin/register', this.authController.registerAdmin);
+    this.router.post('/admin/login', this.authController.loginAdmin);
   }
 
   public getRouter(): Router {
