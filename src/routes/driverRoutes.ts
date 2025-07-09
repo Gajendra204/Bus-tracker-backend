@@ -1,25 +1,23 @@
 import { Router } from 'express';
-import { BusController } from '../controllers/BusController';
+import { DriverController } from '../controllers/DriverController';
 import { AuthorizationService } from '../middlewares/roleMiddleware';
 import { UserRole } from '../interfaces/IUser';
 
-export class BusRoutes {
+export class DriverRoutes {
   private router: Router;
   private authService: AuthorizationService;
-  private BusController: BusController;
-  
+  private driverController: DriverController;
 
   constructor() {
     this.router = Router();
     this.authService = new AuthorizationService();
-    this.BusController = new BusController;
+    this.driverController = new DriverController();
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.post('/create-bus', BusController.createBus);
-    this.router.get('/', BusController.getAllBuses);
-    this.router.patch('/assign-driver', BusController.assignDriverToBus);
+    this.router.post('/create',  this.driverController.createDriver);
+    this.router.get('/', this.driverController.getAllDrivers);
   }
 
   public getRouter(): Router {

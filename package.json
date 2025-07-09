@@ -5,8 +5,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "dev": "nodemon src/server.ts",
-    "create-admin": "ts-node ./src/scripts/createAdmin.ts"
+    "start": "nodemon src/server.ts"
   },
   "keywords": [],
   "author": "",

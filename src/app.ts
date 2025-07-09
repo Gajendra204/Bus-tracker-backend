@@ -7,6 +7,7 @@ import db from './config/db';
 import { BusRoutes } from './routes/busRoutes';
 import { RouteRoutes } from './routes/routeRoutes';
 import { StudentRoutes } from './routes/studentRoutes';
+import { DriverRoutes } from './routes/driverRoutes';
 
 class App {
   public app: express.Application;
@@ -32,11 +33,14 @@ class App {
     const busRoutes = new BusRoutes();
     const routeRoutes = new RouteRoutes();
     const studentRoutes = new StudentRoutes();
+    const driverRoutes = new DriverRoutes();
     
     this.app.use('/api/auth', authRoutes.getRouter());
     this.app.use('/api/buses', busRoutes.getRouter());
     this.app.use('/api/routes', routeRoutes.getRouter());
     this.app.use('/api/students', studentRoutes.getRouter());
+    this.app.use('/api/driver', driverRoutes.getRouter());
+    
   }
 }
 
