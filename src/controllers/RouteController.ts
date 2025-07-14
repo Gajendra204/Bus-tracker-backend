@@ -2,11 +2,10 @@ import { Request, Response } from 'express';
 import { Route } from '../models/Route';
 
 export class RouteController {
-  // Create a new route
   public static async createRoute(req: Request, res: Response) {
     try {
-      const { name, stops } = req.body;
-      const route = new Route({ name, stops });
+      const { name, stops, assignedBus, assignedDriver } = req.body;
+      const route = new Route({ name, stops, assignedBus, assignedDriver });
       await route.save();
       res.status(201).json({ success: true, data: route });
     } catch (error: any) {
@@ -14,13 +13,12 @@ export class RouteController {
     }
   }
 
-  // Assign bus & driver to route
-  public static async assignBusAndDriver(req: Request, res: Response) {
+  public static async assignBusToRoute(req: Request, res: Response) {
     try {
-      const { routeId, busId, driverId } = req.body;
+      const { routeId, busId } = req.body;
       const route = await Route.findByIdAndUpdate(
         routeId,
-        { assignedBus: busId, assignedDriver: driverId },
+        { assignedBus: busId },
         { new: true }
       ).populate('assignedBus assignedDriver');
       res.status(200).json({ success: true, data: route });
@@ -28,4 +26,5 @@ export class RouteController {
       res.status(400).json({ success: false, message: error.message });
     }
   }
+  
 }

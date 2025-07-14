@@ -14,9 +14,9 @@ export class AuthorizationService {
     return authHeader?.replace('Bearer ', '') ?? null;
   }
 
-  private verifyToken(token: string): { role: UserRole } | null {
+  private verifyToken(token: string): { userId: string; role: UserRole } | null {
     try {
-      return jwt.verify(token, this.jwtSecret) as { role: UserRole };
+      return jwt.verify(token, this.jwtSecret) as { userId: string; role: UserRole };
     } catch {
       return null;
     }

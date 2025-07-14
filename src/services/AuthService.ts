@@ -59,11 +59,14 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id.toString(), role: user.role },
       AuthService.JWT_SECRET,
       { expiresIn: '7d' }
     );
+      console.log('Generated token:', token);
 
     return token;
   }
+
+
 }
