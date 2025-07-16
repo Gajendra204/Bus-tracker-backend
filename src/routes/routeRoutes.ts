@@ -6,19 +6,50 @@ import { UserRole } from '../interfaces/IUser';
 export class RouteRoutes {
   private router: Router;
   private authService: AuthorizationService;
-private routeController: RouteController;
-
 
   constructor() {
     this.router = Router();
     this.authService = new AuthorizationService();
-    this.routeController = new RouteController();
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.post('/createRoute', RouteController.createRoute);
-    this.router.patch('/assignBusToRoute', RouteController.assignBusToRoute);
+    // Admin-only routes
+    this.router.post(
+      '/',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.createRoute
+    );
+    
+    this.router.get(
+      '/',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.getRoutes
+    );
+    
+    this.router.get(
+      '/:id',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.getRouteById
+    );
+    
+    this.router.put(
+      '/:id',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.updateRoute
+    );
+    
+    this.router.delete(
+      '/:id',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.deleteRoute
+    );
+    
+    this.router.patch(
+      '/:id/assign-bus',
+      // this.authService.requireRole(UserRole.ADMIN),
+      RouteController.assignBusToRoute
+    );
   }
 
   public getRouter(): Router {

@@ -1,21 +1,20 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { IRoute } from '../interfaces/IRoute';
 
-const stopSchema = new mongoose.Schema({
-  name: String,
+const routeStopSchema = new Schema({
+  name: { type: String, required: true },
   location: {
-    lat: Number,
-    lng: Number
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
   },
-  order: Number,
-  estimatedTimeFromPrevious: Number 
+  arrivalTime: { type: String },
+  order: { type: Number, required: true }
 });
 
-const routeSchema = new mongoose.Schema({
-  name: String,
-  stops: [stopSchema],
-  assignedBus: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus' },
-  assignedDriver: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
-  active: Boolean
-});
+const routeSchema = new Schema<IRoute>({
+  name: { type: String, required: true },
+  stops: [routeStopSchema],
+  busId: { type: Schema.Types.ObjectId, ref: 'Bus' },
+}, { timestamps: true });
 
-export const Route = mongoose.model('Route', routeSchema);
+export const Route = model<IRoute>('Route', routeSchema);

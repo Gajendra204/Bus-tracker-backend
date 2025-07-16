@@ -63,7 +63,6 @@ export class AuthService {
       AuthService.JWT_SECRET,
       { expiresIn: '7d' }
     );
-      console.log('Generated token:', token);
 
     return token;
   }

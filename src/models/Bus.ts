@@ -3,7 +3,7 @@ import { IBus } from '../interfaces/IBus';
 
 
 const busSchema = new Schema<IBus>({
-  name: { type: String, required: true },  // Added
+  name: { type: String, required: true },  
   busNumber: { type: String, required: true, unique: true },
   capacity: Number,
   assignedDriver: { type: Schema.Types.ObjectId, ref: 'Driver' }
