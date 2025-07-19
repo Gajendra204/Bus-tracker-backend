@@ -17,19 +17,17 @@ export class RouteRoutes {
     // Admin-only routes
     this.router.post(
       '/',
-      // this.authService.requireRole(UserRole.ADMIN),
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.createRoute
     );
     
     this.router.get(
       '/',
-      // this.authService.requireRole(UserRole.ADMIN),
       RouteController.getRoutes
     );
     
     this.router.get(
       '/:id',
-      // this.authService.requireRole(UserRole.ADMIN),
       RouteController.getRouteById
     );
     

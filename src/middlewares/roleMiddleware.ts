@@ -4,7 +4,7 @@ import { UserRole } from '../interfaces/IUser';
 
 export class AuthorizationService {
   private jwtSecret: string;
-
+  
   constructor(jwtSecret: string = process.env.JWT_SECRET || 'secret_key') {
     this.jwtSecret = jwtSecret;
   }
@@ -16,8 +16,11 @@ export class AuthorizationService {
 
   private verifyToken(token: string): { userId: string; role: UserRole } | null {
     try {
-      return jwt.verify(token, this.jwtSecret) as { userId: string; role: UserRole };
-    } catch {
+      const decoded = jwt.verify(token, this.jwtSecret) as { userId: string; role: UserRole };
+      console.log("Decoded token:", decoded); 
+    return decoded;
+    } catch(error) {
+      console.error("Token verification failed:", error); 
       return null;
     }
   }

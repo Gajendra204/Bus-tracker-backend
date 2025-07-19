@@ -17,9 +17,11 @@ export class BusRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/create-bus', BusController.createBus);
-    this.router.get('/', BusController.getAllBuses);
-    this.router.patch('/assign-driver', BusController.assignDriverToBus);
+    this.router.post('/create-bus', this.BusController.createBus);
+    this.router.get('/', this.BusController.getAllBuses);
+    this.router.patch('/assign-driver', this.BusController.assignDriverToBus);
+    this.router.put('/:id', this.BusController.updateBus);
+    this.router.delete('/:id', this.BusController.deleteBus);
   }
 
   public getRouter(): Router {

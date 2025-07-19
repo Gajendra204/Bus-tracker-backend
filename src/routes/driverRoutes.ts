@@ -18,6 +18,8 @@ export class DriverRoutes {
   private initializeRoutes(): void {
     this.router.post('/create',  this.driverController.createDriver);
     this.router.get('/', this.driverController.getAllDrivers);
+    this.router.put('/:id', this.driverController.updateDriver);
+    this.router.delete('/:id', this.driverController.deleteDriver);
   }
 
   public getRouter(): Router {

@@ -41,6 +41,16 @@ class App {
     this.app.use('/api/students', studentRoutes.getRouter());
     this.app.use('/api/driver', driverRoutes.getRouter());
     
+
+   this.app.get("/api/geocode", async (req, res) => {
+  const { q } = req.query;
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${q}`,
+    { headers: { "User-Agent": "bus-tracker" } }
+  );
+  const data = await response.json();
+  res.json(data);
+});
   }
 }
 
