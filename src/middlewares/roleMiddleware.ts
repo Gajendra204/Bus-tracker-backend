@@ -17,7 +17,6 @@ export class AuthorizationService {
   private verifyToken(token: string): { userId: string; role: UserRole } | null {
     try {
       const decoded = jwt.verify(token, this.jwtSecret) as { userId: string; role: UserRole };
-      console.log("Decoded token:", decoded); 
     return decoded;
     } catch(error) {
       console.error("Token verification failed:", error); 

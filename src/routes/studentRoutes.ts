@@ -14,8 +14,25 @@ export class StudentRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/addStudent', this.authService.requireRole(UserRole.ADMIN), StudentController.addStudent);
-    this.router.patch('/assign', this.authService.requireRole(UserRole.ADMIN), StudentController.assignToBusAndDriver);
+    this.router.get(
+      '/route/:routeId',
+      this.authService.requireRole(UserRole.ADMIN),
+      StudentController.getStudentsByRoute
+    );
+
+    
+    this.router.post(
+      '/route/:routeId',
+      this.authService.requireRole(UserRole.ADMIN),
+      StudentController.createStudent
+    );
+
+    
+    this.router.delete(
+      '/:id',
+      this.authService.requireRole(UserRole.ADMIN),
+      StudentController.deleteStudent
+    );
   }
 
   public getRouter(): Router {

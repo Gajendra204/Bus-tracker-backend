@@ -34,7 +34,7 @@ export class AuthService {
 
   public async registerAdmin(userData: IUser): Promise<IUser> {
     this.validateAdminData(userData);
-    userData.role = UserRole.ADMIN; // Force role to be ADMIN
+    userData.role = UserRole.ADMIN; 
 
     const existingUser = await this.findUserByEmail(userData.email);
     if (existingUser) {

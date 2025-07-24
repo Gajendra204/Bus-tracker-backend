@@ -1,12 +1,21 @@
 import { Schema } from "mongoose";
 
-export interface IStudent{
+export interface IStudent {
   name: string;
-  class?: string;
-  rollNumber?: string;
-  parent: Schema.Types.ObjectId;       
-  assignedBus?: Schema.Types.ObjectId; 
-  assignedDriver?: Schema.Types.ObjectId; 
+  class: number;
+  routeId: Schema.Types.ObjectId;
+  parentName: string;
+  parentPhone: string;
+  address: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface CreateStudentData {
+  name: string;
+  class: number;
+  routeId: string;
+  parentName: string;
+  parentPhone: string;
+  address: string;
 }
