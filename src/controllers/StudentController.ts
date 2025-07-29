@@ -5,7 +5,7 @@ import { Route } from '../models/Route';
 export class StudentController {
   public static async createStudent(req: Request, res: Response): Promise<void> {
     try {
-      const { name, class: studentClass, parentName, parentPhone, address } = req.body;
+      const { name, class: studentClass, parentName, parentPhone, pickupLocation, dropoffLocation } = req.body;
       const { routeId } = req.params;
 
       const route = await Route.findById(routeId);
@@ -20,7 +20,8 @@ export class StudentController {
         routeId,
         parentName,
         parentPhone,
-        address
+        pickupLocation,
+        dropoffLocation
       });
 
       await student.save();

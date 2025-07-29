@@ -6,7 +6,8 @@ export interface IStudent {
   routeId: Schema.Types.ObjectId;
   parentName: string;
   parentPhone: string;
-  address: string;
+  pickupLocation: string;
+  dropoffLocation: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,5 +18,6 @@ export interface CreateStudentData {
   routeId: string;
   parentName: string;
   parentPhone: string;
-  address: string;
+  pickupLocation: string;
+  dropoffLocation: string;
 }

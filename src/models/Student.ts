@@ -7,7 +7,8 @@ const studentSchema = new Schema<IStudent>({
   routeId: { type: Schema.Types.ObjectId, ref: 'Route', required: true },
   parentName: { type: String, required: true },
   parentPhone: { type: String, required: true },
-  address: { type: String, required: true },
+  pickupLocation: { type: String, required: true },
+  dropoffLocation: { type: String, required: true },
 }, { timestamps: true });
 
 export const Student = model<IStudent>('Student', studentSchema);
