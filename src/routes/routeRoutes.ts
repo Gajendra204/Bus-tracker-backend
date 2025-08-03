@@ -14,7 +14,6 @@ export class RouteRoutes {
   }
 
   private initializeRoutes(): void {
-    // Admin-only routes
     this.router.post(
       '/',
       this.authService.requireRole(UserRole.ADMIN),
@@ -23,29 +22,31 @@ export class RouteRoutes {
     
     this.router.get(
       '/',
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.getRoutes
     );
     
     this.router.get(
       '/:id',
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.getRouteById
     );
     
     this.router.put(
       '/:id',
-      // this.authService.requireRole(UserRole.ADMIN),
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.updateRoute
     );
     
     this.router.delete(
       '/:id',
-      // this.authService.requireRole(UserRole.ADMIN),
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.deleteRoute
     );
     
     this.router.patch(
       '/:id/assign-bus',
-      // this.authService.requireRole(UserRole.ADMIN),
+      this.authService.requireRole(UserRole.ADMIN),
       RouteController.assignBusToRoute
     );
   }

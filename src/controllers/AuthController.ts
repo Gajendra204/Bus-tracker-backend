@@ -54,5 +54,77 @@ export class AuthController {
     }
   };
 
-  
+   public sendDriverOTP = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { phoneNumber } = req.body;
+      const result = await AuthService.sendDriverOTP(phoneNumber);
+      
+      res.status(200).json({
+        success: result.success,
+        message: result.success ? 'OTP sent successfully' : 'Failed to send OTP',
+        data: {
+          otpToken: result.otpToken 
+        }
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  };
+
+  public sendParentOTP = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { phoneNumber } = req.body;
+      const result = await AuthService.sendParentOTP(phoneNumber);
+      
+      res.status(200).json({
+        success: result.success,
+        message: result.success ? 'OTP sent successfully' : 'Failed to send OTP',
+        data: {
+          otpToken: result.otpToken 
+        }
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  };
+
+  public verifyDriverOTP = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { otpToken, otp } = req.body;
+      const token = await AuthService.verifyDriverOTP(otpToken, otp);
+      
+      res.status(200).json({
+        success: true,
+        data: { token }
+      });
+    } catch (error: any) {
+      res.status(401).json({
+        success: false,
+        message: error.message
+      });
+    }
+  };
+
+  public verifyParentOTP = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { otpToken, otp } = req.body;
+      const token = await AuthService.verifyParentOTP(otpToken, otp);
+      
+      res.status(200).json({
+        success: true,
+        data: { token }
+      });
+    } catch (error: any) {
+      res.status(401).json({
+        success: false,
+        message: error.message
+      });
+    }
+  };
 }

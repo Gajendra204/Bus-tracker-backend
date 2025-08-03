@@ -16,10 +16,10 @@ export class DriverRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/create',  this.driverController.createDriver);
-    this.router.get('/', this.driverController.getAllDrivers);
-    this.router.put('/:id', this.driverController.updateDriver);
-    this.router.delete('/:id', this.driverController.deleteDriver);
+    this.router.post('/create', this.authService.requireRole(UserRole.ADMIN), this.driverController.createDriver);
+    this.router.get('/', this.authService.requireRole(UserRole.ADMIN), this.driverController.getAllDrivers);
+    this.router.put('/:id', this.authService.requireRole(UserRole.ADMIN), this.driverController.updateDriver);
+    this.router.delete('/:id', this.authService.requireRole(UserRole.ADMIN), this.driverController.deleteDriver);
   }
 
   public getRouter(): Router {

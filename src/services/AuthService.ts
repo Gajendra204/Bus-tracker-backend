@@ -1,71 +1,44 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
-import { IUser, UserRole } from '../interfaces/IUser';
+import { IUser } from '../interfaces/IUser';
+import { AdminAuthService } from './AdminAuthService';
+import { OTPService } from './OTPService';
+import { TokenService } from './TokenService';
 
 export class AuthService {
-  private static JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
+  private adminAuthService: AdminAuthService;
 
-  private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
+  constructor() {
+    this.adminAuthService = new AdminAuthService();
   }
 
-  private async createUser(userData: IUser): Promise<IUser> {
-    const user = new User(userData);
-    await user.save();
-    return user;
-  }
-
-  public async findUserByEmail(email: string): Promise<IUser | null> {
-    return User.findOne({ email });
-  }
-
-  private validateAdminData(userData: IUser): void {
-    const { name, email, password, schoolName } = userData;
-
-    if (!name || !email || !password || !schoolName) {
-      throw new Error('Name, email, password and school name are required');
-    }
-
-    if (password.length < 6) {
-      throw new Error('Password must be at least 6 characters');
-    }
-  }
-
+  // Admin Authentication Methods
   public async registerAdmin(userData: IUser): Promise<IUser> {
-    this.validateAdminData(userData);
-    userData.role = UserRole.ADMIN; 
-
-    const existingUser = await this.findUserByEmail(userData.email);
-    if (existingUser) {
-      throw new Error('Email already exists');
-    }
-
-    const hashedPassword = await this.hashPassword(userData.password);
-    const user = await this.createUser({ ...userData, password: hashedPassword });
-
-    return user;
+    return this.adminAuthService.registerAdmin(userData);
   }
 
   public async loginAdmin(email: string, password: string): Promise<string> {
-    const user = await User.findOne({ email, role: UserRole.ADMIN });
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new Error('Invalid credentials');
-    }
-
-    const token = jwt.sign(
-      { userId: user._id.toString(), role: user.role },
-      AuthService.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    return token;
+    return this.adminAuthService.loginAdmin(email, password);
   }
 
+  public async findUserByEmail(email: string): Promise<IUser | null> {
+    return this.adminAuthService.findUserByEmail(email);
+  }
 
+  // OTP Authentication Methods
+  public static async sendDriverOTP(phoneNumber: string): Promise<{ success: boolean; otpToken?: string }> {
+    return OTPService.sendDriverOTP(phoneNumber);
+  }
+
+  public static async sendParentOTP(phoneNumber: string): Promise<{ success: boolean; otpToken?: string }> {
+    return OTPService.sendParentOTP(phoneNumber);
+  }
+
+  public static async verifyDriverOTP(otpToken: string, otp: string): Promise<string> {
+    const driver = await OTPService.verifyDriverOTP(otpToken, otp);
+    return TokenService.generateDriverToken(driver);
+  }
+
+  public static async verifyParentOTP(otpToken: string, otp: string): Promise<string> {
+    const student = await OTPService.verifyParentOTP(otpToken, otp);
+    return TokenService.generateParentToken(student);
+  }
 }
