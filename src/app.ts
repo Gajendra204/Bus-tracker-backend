@@ -20,8 +20,20 @@ class App {
   }
 
   private initializeMiddlewares(): void {
-    this.app.use(cors());
+    // Configure CORS to allow all origins for development
+    this.app.use(cors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: false
+    }));
+
     this.app.use(express.json());
+
+    this.app.use((req, _res, next) => {
+      // console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+      next();
+    });
   }
 
   private async initializeDatabase(): Promise<void> {
@@ -29,12 +41,25 @@ class App {
   }
 
   private initializeRoutes(): void {
+    // Health check endpoint
+    this.app.get('/api/health', (_req, res) => {
+      res.status(200).json({
+        success: true,
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+          'driver-otp': '/api/auth/driver/send-otp',
+          'parent-otp': '/api/auth/parent/send-otp'
+        }
+      });
+    });
+
     const authRoutes = new AuthRoutes();
     const busRoutes = new BusRoutes();
     const routeRoutes = new RouteRoutes();
     const studentRoutes = new StudentRoutes();
     const driverRoutes = new DriverRoutes();
-    
+
     this.app.use('/api/auth', authRoutes.getRouter());
     this.app.use('/api/buses', busRoutes.getRouter());
     this.app.use('/api/routes', routeRoutes.getRouter());
