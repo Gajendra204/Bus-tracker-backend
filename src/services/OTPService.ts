@@ -122,8 +122,9 @@ export class OTPService {
    // Verify parent OTP
   public static async verifyParentOTP(otpToken: string, otp: string): Promise<any> {
     try {
+      console.log('Verifying parent OTP token...');
       const decoded = jwt.verify(otpToken, this.JWT_SECRET) as any;
-      
+
       if (decoded.type !== 'parent_otp') {
         throw new Error('Invalid OTP token type');
       }

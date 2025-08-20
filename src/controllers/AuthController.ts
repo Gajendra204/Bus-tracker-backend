@@ -114,13 +114,16 @@ export class AuthController {
   public verifyParentOTP = async (req: Request, res: Response): Promise<void> => {
     try {
       const { otpToken, otp } = req.body;
+
       const token = await AuthService.verifyParentOTP(otpToken, otp);
-      
+      console.log('Parent OTP verification successful');
+
       res.status(200).json({
         success: true,
         data: { token }
       });
     } catch (error: any) {
+      console.log('Parent OTP verification failed:', error.message);
       res.status(401).json({
         success: false,
         message: error.message

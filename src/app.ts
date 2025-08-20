@@ -20,7 +20,6 @@ class App {
   }
 
   private initializeMiddlewares(): void {
-    // Configure CORS to allow all origins for development
     this.app.use(cors({
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
