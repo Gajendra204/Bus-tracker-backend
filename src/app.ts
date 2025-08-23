@@ -8,6 +8,7 @@ import { BusRoutes } from './routes/busRoutes';
 import { RouteRoutes } from './routes/routeRoutes';
 import { StudentRoutes } from './routes/studentRoutes';
 import { DriverRoutes } from './routes/driverRoutes';
+import { ParentRoutes } from './routes/parentRoutes';
 
 class App {
   public app: express.Application;
@@ -29,10 +30,6 @@ class App {
 
     this.app.use(express.json());
 
-    this.app.use((req, _res, next) => {
-      // console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-      next();
-    });
   }
 
   private async initializeDatabase(): Promise<void> {
@@ -58,12 +55,14 @@ class App {
     const routeRoutes = new RouteRoutes();
     const studentRoutes = new StudentRoutes();
     const driverRoutes = new DriverRoutes();
+    const parentRoutes = new ParentRoutes();
 
     this.app.use('/api/auth', authRoutes.getRouter());
     this.app.use('/api/buses', busRoutes.getRouter());
     this.app.use('/api/routes', routeRoutes.getRouter());
     this.app.use('/api/students', studentRoutes.getRouter());
     this.app.use('/api/driver', driverRoutes.getRouter());
+    this.app.use('/api/parent', parentRoutes.getRouter());
     
 
    this.app.get("/api/geocode", async (req, res) => {
