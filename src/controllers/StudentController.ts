@@ -1,6 +1,9 @@
-import { Request, Response } from 'express';
-import { Student } from '../models/Student';
-import { Route } from '../models/Route';
+import { Request, Response } from "express";
+import { StudentService } from "../services/StudentService";
+import { successResponse, errorResponse } from "../utils/ResponseHandler";
+import { logger } from "../utils/logger";
+
+const studentService = new StudentService();
 
 export class StudentController {
   public static async createStudent(req: Request, res: Response): Promise<void> {
@@ -8,26 +11,21 @@ export class StudentController {
       const { name, class: studentClass, parentName, parentPhone, pickupLocation, dropoffLocation } = req.body;
       const { routeId } = req.params;
 
-      const route = await Route.findById(routeId);
-      if (!route) {
-        res.status(404).json({ success: false, message: 'Route not found' });
-        return;
-      }
-
-      const student = new Student({
+      const student = await studentService.createStudent(
         name,
-        class: studentClass,
-        routeId,
+        studentClass,
         parentName,
         parentPhone,
         pickupLocation,
-        dropoffLocation
-      });
+        dropoffLocation,
+        routeId
+      );
 
-      await student.save();
-      res.status(201).json({ success: true, data: student });
+      logger.info("Student created successfully", { studentId: student._id, routeId });
+      successResponse(res, student, "Student created successfully", 201);
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error creating student", { error: error.message, routeId: req.params.routeId });
+      errorResponse(res, error.message, 400);
     }
   }
 
@@ -36,37 +34,27 @@ export class StudentController {
       const { routeId } = req.params;
       const { class: studentClass } = req.query;
 
-      const route = await Route.findById(routeId);
-      if (!route) {
-        res.status(404).json({ success: false, message: 'Route not found' });
-        return;
-      }
-
-      let query: any = { routeId };
-      if (studentClass) {
-        query.class = studentClass;
-      }
-
-      const students = await Student.find(query).sort({ class: 1, name: 1 });
-      res.status(200).json({ success: true, data: students });
+      const students = await studentService.getStudentsByRoute(routeId, studentClass as string);
+      successResponse(res, students, "Students fetched successfully");
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching students by route", { 
+        error: error.message, 
+        routeId: req.params.routeId 
+      });
+      errorResponse(res, error.message, error.message === "Route not found" ? 404 : 500);
     }
   }
 
   public static async deleteStudent(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const student = await Student.findByIdAndDelete(id);
+      const student = await studentService.deleteStudent(id);
 
-      if (!student) {
-        res.status(404).json({ success: false, message: 'Student not found' });
-        return;
-      }
-
-      res.status(200).json({ success: true, message: 'Student deleted successfully' });
+      logger.info("Student deleted successfully", { studentId: id });
+      successResponse(res, null, "Student deleted successfully");
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error deleting student", { error: error.message, studentId: req.params.id });
+      errorResponse(res, error.message, error.message === "Student not found" ? 404 : 400);
     }
   }
 }

@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
-import { Student } from '../models/Student';
-import { Route } from '../models/Route';
-import { Bus } from '../models/Bus';
-import { Driver } from '../models/Driver';
+import { Request, Response } from "express";
+import { ParentService } from "../services/ParentService";
+import { successResponse, errorResponse } from "../utils/ResponseHandler";
+import { logger } from "../utils/logger";
+
+const parentService = new ParentService();
 
 export class ParentController {
   // Get parent's child route information
@@ -11,87 +12,21 @@ export class ParentController {
       const parentPhone = req.user?.phone;
 
       if (!parentPhone) {
-        res.status(401).json({ success: false, message: 'Parent phone not found in token' });
-        return;
+        return errorResponse(res, "Parent phone not found in token", 401);
       }
 
-      const students = await Student.find({ parentPhone: parentPhone });
+      const routeData = await parentService.getParentRoute(parentPhone);
 
-      if (!students || students.length === 0) {
-        res.status(404).json({ 
-          success: false, 
-          message: 'No student found for this parent' 
-        });
-        return;
-      }
-
-      const student = students[0];
-
-      // Find the route assigned to this student
-      const route = await Route.findById(student.routeId);
-
-      if (!route) {
-        res.status(404).json({ 
-          success: false, 
-          message: 'No route assigned to this student' 
-        });
-        return;
-      }
-
-      // Find the bus assigned to this route
-      const bus = await Bus.findById(route.busId).populate('assignedDriver');
-
-      if (!bus) {
-        res.status(404).json({ 
-          success: false, 
-          message: 'No bus assigned to this route' 
-        });
-        return;
-      }
-
-      // Get driver information
-      const driver = bus.assignedDriver as any;
-
-      if (!driver) {
-        res.status(404).json({ 
-          success: false, 
-          message: 'No driver assigned to this bus' 
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: {
-          student: {
-            _id: student._id,
-            name: student.name,
-            class: student.class,
-            pickupLocation: student.pickupLocation,
-            dropoffLocation: student.dropoffLocation
-          },
-          route: {
-            _id: route._id,
-            name: route.name,
-            stops: route.stops
-          },
-          bus: {
-            _id: bus._id,
-            name: bus.name,
-            busNumber: bus.busNumber,
-            capacity: bus.capacity
-          },
-          driver: {
-            _id: driver._id,
-            name: driver.name,
-            phone: driver.phone
-          },
-          driverId: driver._id.toString()
-        }
-      });
+      logger.info("Parent route fetched successfully", { parentPhone });
+      successResponse(res, routeData, "Parent route fetched successfully");
     } catch (error: any) {
-      console.error('Error in getParentRoute:', error);
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching parent route", { 
+        error: error.message, 
+        parentPhone: req.user?.phone 
+      });
+      
+      const statusCode = error.message.includes("not found") ? 404 : 500;
+      errorResponse(res, error.message, statusCode);
     }
   };
 
@@ -101,39 +36,21 @@ export class ParentController {
       const parentPhone = req.user?.phone;
 
       if (!parentPhone) {
-        res.status(401).json({ success: false, message: 'Parent phone not found in token' });
-        return;
+        return errorResponse(res, "Parent phone not found in token", 401);
       }
 
-      // Find all students associated with this parent
-      const students = await Student.find({ parentPhone: parentPhone });
+      const profileData = await parentService.getParentProfile(parentPhone);
 
-      if (!students || students.length === 0) {
-        res.status(404).json({ 
-          success: false, 
-          message: 'No students found for this parent' 
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: {
-          phone: parentPhone,
-          parentName: students[0].parentName, 
-          children: students.map(student => ({
-            _id: student._id,
-            name: student.name,
-            class: student.class,
-            pickupLocation: student.pickupLocation,
-            dropoffLocation: student.dropoffLocation
-          })),
-          totalChildren: students.length
-        }
-      });
+      logger.info("Parent profile fetched successfully", { parentPhone });
+      successResponse(res, profileData, "Parent profile fetched successfully");
     } catch (error: any) {
-      console.error('Error in getParentProfile:', error);
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching parent profile", { 
+        error: error.message, 
+        parentPhone: req.user?.phone 
+      });
+      
+      const statusCode = error.message.includes("not found") ? 404 : 500;
+      errorResponse(res, error.message, statusCode);
     }
   };
 
@@ -143,26 +60,19 @@ export class ParentController {
       const parentPhone = req.user?.phone;
 
       if (!parentPhone) {
-        res.status(401).json({ success: false, message: 'Parent phone not found in token' });
-        return;
+        return errorResponse(res, "Parent phone not found in token", 401);
       }
 
-      const students = await Student.find({ parentPhone: parentPhone }).populate('routeId');
+      const childrenData = await parentService.getParentChildren(parentPhone);
 
-      res.status(200).json({
-        success: true,
-        data: students.map(student => ({
-          _id: student._id,
-          name: student.name,
-          class: student.class,
-          pickupLocation: student.pickupLocation,
-          dropoffLocation: student.dropoffLocation,
-          route: student.routeId
-        }))
-      });
+      logger.info("Parent children fetched successfully", { parentPhone });
+      successResponse(res, childrenData, "Parent children fetched successfully");
     } catch (error: any) {
-      console.error('Error in getParentChildren:', error);
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching parent children", { 
+        error: error.message, 
+        parentPhone: req.user?.phone 
+      });
+      errorResponse(res, error.message, 500);
     }
   };
 }

@@ -1,118 +1,82 @@
-import { Request, Response } from 'express';
-import { Route } from '../models/Route';
-import { Bus } from '../models/Bus';
+import { Request, Response } from "express";
+import { RouteService } from "../services/RouteService";
+import { successResponse, errorResponse } from "../utils/ResponseHandler";
+import { logger } from "../utils/logger";
+
+const routeService = new RouteService();
 
 export class RouteController {
   public static async createRoute(req: Request, res: Response): Promise<void> {
     try {
       const { name, stops, busId } = req.body;
-      
-      const stopOrders = stops.map((stop: any) => stop.order);
-      if (new Set(stopOrders).size !== stops.length) {
-        throw new Error('Stop orders must be unique');
-      }
+      const route = await routeService.createRoute(name, stops, busId);
 
-      if (busId) {
-        const bus = await Bus.findById(busId);
-        if (!bus) {
-          throw new Error('Bus not found');
-        }
-      }
-
-      const route = new Route({ 
-        name, 
-        stops,
-        busId,
-      });
-      
-      await route.save();
-      res.status(201).json({ success: true, data: route });
+      logger.info("Route created successfully", { routeId: route._id });
+      successResponse(res, route, "Route created successfully", 201);
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error creating route", { error: error.message });
+      errorResponse(res, error.message, 400);
     }
   }
 
   public static async getRoutes(req: Request, res: Response): Promise<void> {
     try {
-      const routes = await Route.find()
-        .populate('busId', 'name busNumber');
-      res.status(200).json({ success: true, data: routes });
+      const routes = await routeService.getAllRoutes();
+      successResponse(res, routes, "Routes fetched successfully");
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching routes", { error: error.message });
+      errorResponse(res, error.message, 500);
     }
   }
 
   public static async getRouteById(req: Request, res: Response): Promise<void> {
     try {
-      const route = await Route.findById(req.params.id)
-        .populate('busId', 'name busNumber assignedDriver')
-        .populate('busId.assignedDriver', 'name phone');
-      
-      if (!route) {
-        throw new Error('Route not found');
-      }
-      
-      res.status(200).json({ success: true, data: route });
+      const route = await routeService.getRouteById(req.params.id);
+      successResponse(res, route, "Route fetched successfully");
     } catch (error: any) {
-      res.status(404).json({ success: false, message: error.message });
+      logger.error("Error fetching route", { error: error.message });
+      errorResponse(res, error.message, 404);
     }
   }
 
   public static async updateRoute(req: Request, res: Response): Promise<void> {
     try {
       const { name, stops, busId } = req.body;
-      const route = await Route.findByIdAndUpdate(
-        req.params.id,
-        { name, stops, busId },
-        { new: true }
-      );
+      const route = await routeService.updateRoute(req.params.id, name, stops, busId);
       
-      if (!route) {
-        throw new Error('Route not found');
-      }
-      
-      res.status(200).json({ success: true, data: route });
+      logger.info("Route updated successfully", { routeId: route._id });
+      successResponse(res, route, "Route updated successfully");
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error updating route", { error: error.message });
+      errorResponse(res, error.message, 400);
     }
   }
 
   public static async deleteRoute(req: Request, res: Response): Promise<void> {
     try {
-      const route = await Route.findByIdAndDelete(req.params.id);
+      const route = await routeService.deleteRoute(req.params.id);
       
-      if (!route) {
-        throw new Error('Route not found');
-      }
-      
-      res.status(200).json({ success: true, message: 'Route deleted' });
+      logger.info("Route deleted successfully", { routeId: route._id });
+      successResponse(res, null, "Route deleted successfully");
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error deleting route", { error: error.message });
+      errorResponse(res, error.message, 400);
     }
   }
 
   public static async assignBusToRoute(req: Request, res: Response): Promise<void> {
     try {
       const { busId } = req.body;
+      const route = await routeService.assignBusToRoute(req.params.id, busId);
       
-      const bus = await Bus.findById(busId);
-      if (!bus) {
-        throw new Error('Bus not found');
-      }
-      
-      const route = await Route.findByIdAndUpdate(
-        req.params.id,
-        { busId },
-        { new: true }
-      );
-      
-      if (!route) {
-        throw new Error('Route not found');
-      }
-      
-      res.status(200).json({ success: true, data: route });
+      logger.info("Bus assigned to route successfully", { 
+        routeId: route._id, 
+        busId: busId 
+      });
+      successResponse(res, route, "Bus assigned to route successfully");
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error assigning bus to route", { error: error.message });
+      errorResponse(res, error.message, 400);
     }
   }
 }

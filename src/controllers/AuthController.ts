@@ -19,21 +19,14 @@ export class AuthController {
 
       const user = await this.authService.registerAdmin(userData);
       
-      res.status(201).json({
-        success: true,
-        data: { 
-          name: user.name, 
-          username: user.email,
-          schoolName: user.schoolName,
-          role: user.role 
-        },
-        message: 'Admin registered successfully'
+     this.successResponse(res, 201, "Admin registered successfully", {
+        name: user.name,
+        username: user.email,
+        schoolName: user.schoolName,
+        role: user.role,
       });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 400, error.message);
     }
   };
 
@@ -42,15 +35,9 @@ export class AuthController {
       const { email, password } = req.body;
       const token = await this.authService.loginAdmin(email, password);
       
-      res.status(200).json({
-        success: true,
-        data: { token }
-      });
+      this.successResponse(res, 200, "Login successful", { token });
     } catch (error: any) {
-      res.status(401).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 401, error.message);
     }
   };
 
@@ -59,18 +46,11 @@ export class AuthController {
       const { phoneNumber } = req.body;
       const result = await AuthService.sendDriverOTP(phoneNumber);
       
-      res.status(200).json({
-        success: result.success,
-        message: result.success ? 'OTP sent successfully' : 'Failed to send OTP',
-        data: {
-          otpToken: result.otpToken 
-        }
+      this.successResponse(res, 200, result.success ? "OTP sent successfully" : "Failed to send OTP", {
+      otpToken: result.otpToken,
       });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 400, error.message);
     }
   };
 
@@ -79,18 +59,11 @@ export class AuthController {
       const { phoneNumber } = req.body;
       const result = await AuthService.sendParentOTP(phoneNumber);
       
-      res.status(200).json({
-        success: result.success,
-        message: result.success ? 'OTP sent successfully' : 'Failed to send OTP',
-        data: {
-          otpToken: result.otpToken 
-        }
+       this.successResponse(res, 200, result.success ? "OTP sent successfully" : "Failed to send OTP", {
+        otpToken: result.otpToken,
       });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 400, error.message);
     }
   };
 
@@ -99,15 +72,9 @@ export class AuthController {
       const { otpToken, otp } = req.body;
       const token = await AuthService.verifyDriverOTP(otpToken, otp);
       
-      res.status(200).json({
-        success: true,
-        data: { token }
-      });
+      this.successResponse(res, 200, "Driver OTP verified successfully", { token });
     } catch (error: any) {
-      res.status(401).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 401, error.message);
     }
   };
 
@@ -116,18 +83,20 @@ export class AuthController {
       const { otpToken, otp } = req.body;
 
       const token = await AuthService.verifyParentOTP(otpToken, otp);
-      console.log('Parent OTP verification successful');
 
-      res.status(200).json({
-        success: true,
-        data: { token }
-      });
+        this.successResponse(res, 200, "Parent OTP verified successfully", { token });
     } catch (error: any) {
-      console.log('Parent OTP verification failed:', error.message);
-      res.status(401).json({
-        success: false,
-        message: error.message
-      });
+      this.errorResponse(res, 401, error.message);
     }
   };
+
+  // Helper Methods
+ private successResponse(res: Response, status: number, message: string, data: any = {}) {
+    res.status(status).json({ success: true, message, data });
+  }
+
+  private errorResponse(res: Response, status: number, message: string) {
+    res.status(status).json({ success: false, message });
+  }
 }
+

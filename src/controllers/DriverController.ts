@@ -1,164 +1,102 @@
-import { Request, Response } from 'express';
-import { Driver } from '../models/Driver';
-import { Bus } from '../models/Bus';
-import { Route } from '../models/Route';
-import { Student } from '../models/Student';
+import { Request, Response } from "express";
+import { DriverService } from "../services/DriverService";
+import { successResponse, errorResponse } from "../utils/ResponseHandler";
+import { logger } from "../utils/logger";
+
+const driverService = new DriverService();
 
 export class DriverController {
   public createDriver = async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, phone } = req.body;
-      const driver = new Driver({ name, phone });
-      await driver.save();
-      res.status(201).json({ success: true, data: driver });
+      const driver = await driverService.createDriver(name, phone);
+
+      logger.info("Driver created successfully", { driverId: driver._id });
+      successResponse(res, driver, "Driver created successfully", 201);
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      logger.error("Error creating driver", { error: error.message });
+      errorResponse(res, error.message, 400);
     }
   };
 
   public getAllDrivers = async (req: Request, res: Response): Promise<void> => {
     try {
-      const drivers = await Driver.find();
-      res.status(200).json({ success: true, data: drivers });
+      const drivers = await driverService.getAllDrivers();
+      successResponse(res, drivers, "Drivers fetched successfully");
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching drivers", { error: error.message });
+      errorResponse(res, error.message, 500);
     }
   };
 
-  // Get driver's assigned route information with students
   public getDriverRoute = async (req: Request, res: Response): Promise<void> => {
     try {
       const driverId = req.user?.userId;
-
       if (!driverId) {
-        res.status(401).json({ success: false, message: 'Driver ID not found in token' });
-        return;
+        return errorResponse(res, "Driver ID not found in token", 401);
       }
 
-      // bus assigned to this driver
-      const bus = await Bus.findOne({ assignedDriver: driverId }).populate('assignedDriver');
-
-      if (!bus) {
-        res.status(404).json({ success: false, message: 'No bus assigned to this driver' });
-        return;
+      const routeData = await driverService.getDriverRoute(driverId);
+      if (!routeData) {
+        return errorResponse(res, "No bus/route assigned to this driver", 404);
       }
 
-      // route assigned to this bus
-      const route = await Route.findOne({ busId: bus._id });
-
-      if (!route) {
-        res.status(404).json({ success: false, message: 'No route assigned to this bus' });
-        return;
-      }
-
-      // Find all students assigned to this route
-      const students = await Student.find({ routeId: route._id });
-
-      res.status(200).json({
-        success: true,
-        data: {
-          driver: bus.assignedDriver,
-          bus: {
-            _id: bus._id,
-            name: bus.name,
-            busNumber: bus.busNumber,
-            capacity: bus.capacity
-          },
-          route: {
-            _id: route._id,
-            name: route.name,
-            stops: route.stops
-          },
-          students: students.map(student => ({
-            _id: student._id,
-            name: student.name,
-            parentName: student.parentName,
-            parentPhone: student.parentPhone,
-            pickupLocation: student.pickupLocation,
-            dropoffLocation: student.dropoffLocation,
-            class: student.class
-          })),
-          totalStudents: students.length
-        }
-      });
+      successResponse(res, routeData, "Driver route fetched successfully");
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching driver route", { error: error.message });
+      errorResponse(res, error.message, 500);
     }
   };
 
-  // Get driver profile info
   public getDriverProfile = async (req: Request, res: Response): Promise<void> => {
     try {
       const driverId = req.user?.userId;
-
       if (!driverId) {
-        res.status(401).json({ success: false, message: 'Driver ID not found in token' });
-        return;
+        return errorResponse(res, "Driver ID not found in token", 401);
       }
 
-      const driver = await Driver.findById(driverId);
-
+      const driver = await driverService.getDriverProfile(driverId);
       if (!driver) {
-        res.status(404).json({ success: false, message: 'Driver not found' });
-        return;
+        return errorResponse(res, "Driver not found", 404);
       }
 
-      res.status(200).json({ success: true, data: driver });
+      successResponse(res, driver, "Driver profile fetched successfully");
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      logger.error("Error fetching driver profile", { error: error.message });
+      errorResponse(res, error.message, 500);
     }
   };
 
-   public updateDriver = async (req: Request, res: Response): Promise<void> => {
-        try {
-            const { id } = req.params;
-            const { name, phone } = req.body;
-            
-            const driver = await Driver.findByIdAndUpdate(
-                id,
-                { name, phone },
-                { new: true }
-            );
+  public updateDriver = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { name, phone } = req.body;
 
-            if (!driver) {
-                res.status(404).json({ 
-                    success: false, 
-                    message: 'Driver not found' 
-                });
-                return;
-            }
+      const driver = await driverService.updateDriver(id, name, phone);
+      if (!driver) {
+        return errorResponse(res, "Driver not found", 404);
+      }
 
-            res.status(200).json({ success: true, data: driver });
-        } catch (error: any) {
-            res.status(400).json({ 
-                success: false, 
-                message: error.message 
-            });
-        }
-    };
+      successResponse(res, driver, "Driver updated successfully");
+    } catch (error: any) {
+      logger.error("Error updating driver", { error: error.message });
+      errorResponse(res, error.message, 400);
+    }
+  };
 
-    public deleteDriver = async (req: Request, res: Response): Promise<void> => {
-        try {
-            const { id } = req.params;
-            const driver = await Driver.findByIdAndDelete(id);
+  public deleteDriver = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
 
-            if (!driver) {
-                res.status(404).json({ 
-                    success: false, 
-                    message: 'Driver not found' 
-                });
-                return;
-            }
+      const driver = await driverService.deleteDriver(id);
+      if (!driver) {
+        return errorResponse(res, "Driver not found", 404);
+      }
 
-            res.status(200).json({ 
-                success: true, 
-                message: 'Driver deleted successfully' 
-            });
-        } catch (error: any) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-    };
+      successResponse(res, null, "Driver deleted successfully");
+    } catch (error: any) {
+      logger.error("Error deleting driver", { error: error.message });
+      errorResponse(res, error.message, 400);
+    }
+  };
 }
